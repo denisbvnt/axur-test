@@ -20,13 +20,12 @@ def inference_batch(texts, model, tokenizer, device, batch_size=100):
                 pad_token_id=tokenizer.eos_token_id,
                 return_dict_in_generate=True,
                 output_scores=False,
-                no_repeat_ngram_size=3,  # Evita repetição de 2-gramas
-                do_sample=True,  # Ativa amostragem controlada
-                top_k=50,  # Limita o vocabulário considerado
-                top_p=0.95,  # Nucleus sampling
-                temperature=0.9,  # Controla a aleatoriedade
-                # repetition_penalty=1.5,  # Penaliza repetições
-                eos_token_id=tokenizer.eos_token_id  # Ponto de parada natural
+                no_repeat_ngram_size=3,
+                do_sample=True,
+                top_k=50,
+                top_p=0.95,
+                temperature=0.9,
+                eos_token_id=tokenizer.eos_token_id
             )
             generated_ids = outputs.sequences[:, input_length:]
             batch_predictions = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
@@ -49,10 +48,8 @@ def get_model(device):
 
 
 def tokenize_function(example, prompt, tokenizer):
-    # Construir o input_text (sem incluir o output)
     input_text = prompt.format(example['instruction'], example['input'])
     
-    # Tokenizar o input_text
     model_inputs = tokenizer(
         input_text,
         truncation=True,
@@ -60,7 +57,6 @@ def tokenize_function(example, prompt, tokenizer):
         padding="max_length"
     )
     
-    # Tokenizar o output para criar os labels
     with tokenizer.as_target_tokenizer():
         labels = tokenizer(
             example['output'],
